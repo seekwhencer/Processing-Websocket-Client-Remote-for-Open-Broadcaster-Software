@@ -35,10 +35,36 @@ BeatDetect beat;
 BeatListener bl;
 ObsClient c;
 
-// 
+// use "source" or "scene"
+String obsRemoteSourceMode = "source";
+
+//
+String obsRemoteHost  = "localhost";
+String obsRemotePort  = "4444";
+String obsRemoteUrl   = "ws://"+obsRemoteHost+":"+obsRemotePort;
+
+
+//
+String[] obsSources = {
+  "src1", "src2", "src3"
+};  
+String[] obsScenes = { 
+  "scn1", "scn2", "scn3", "scn4", "scn5"
+};
+
+
+//
+int obsTickLast;
+float obsTickLastSwitch;
+float obsTickLengthFrom = 0.1; 
+float obsTickLengthTo = 5;
+String obsTickSource;
+String obsTickScene;
+
 int tickLo = 0;
 int tickMid = 0;
 int tickHi = 0;
+int tickSwitch = 0;
 
 float msLo   = 0;
 float msMid  = 0;
@@ -48,26 +74,9 @@ float msLoLast   = 0;
 float msMidLast  = 0;
 float msHiLast   = 0;
 
-String obsRemoteHost  = "localhost";
-String obsRemotePort  = "4444";
-String obsRemoteUrl   = "ws://"+obsRemoteHost+":"+obsRemotePort;
-String obsRemoteMessage = "WS INIT";
-String[] obsSources = {
-  "src1", "src2", "src3"
-};  
-String[] obsScenes = { 
-  "scn1", "scn2", "scn3", "scn4", "scn5"
-};
-
-// use "source" or "scene"
-String obsRemoteSourceMode = "source";
-
-int obsTickLast;
-float obsTickLengthFrom = 0.1; 
-float obsTickLengthTo = 5;
 
 void setup() {
-  size(240, 280);
+  size(600, 280);
   frameRate( 50 ); 
   noStroke();
 
@@ -88,7 +97,6 @@ void draw() {
   textSize(14);
   stroke(0);
 
-
   //// 
   fill( 0, 0, 0, 100 );
   rect(0, 0, width, height);
@@ -100,39 +108,40 @@ void draw() {
 
   if (kick == true) {
     fill(255, 255, 0);
-    rect(10, 10, width-20, 50);
+    rect(10, 10, (width/2)-20, 50);
     tickLo++;
     msLo = millis() - msLoLast;
     msLoLast = millis();
-    c.switchObsSource("src1");
+    c.switchObsSource();
   }
 
   if (snare == true) {
     fill(255, 0, 255);
-    rect(10, 70, width-20, 50);
+    rect(10, 70, (width/2)-20, 50);
     tickMid++;
     msMid = millis()-msMidLast;
     msMidLast = millis();
-    c.switchObsSource("src2");
+    c.switchObsSource();
   }
 
 
   if (hat == true) {
     fill(255);
-    rect(10, 130, width-20, 50);
+    rect(10, 130, (width/2)-20, 50);
     tickHi++;
     msHi = millis()-msHiLast;
     msHiLast = millis();
-    c.switchObsSource("src3");
+    c.switchObsSource();
   }
 
   fill( 0, 0, 0, 100 );
-  rect(10, 200, width-20, 30);
-  fill (150);
+  rect(10, 200, (width/2)-20, 30);
+  fill (250);
 
   text("Lo "+tickLo+" ("+msLo/1000+" sec.)", 10, 200);
-  text("Mid " +tickMid+" ("+msMid/1000+" sec.)", 10, 230);
-  text("Hi "+tickHi+" ("+msHi/1000+" sec.)", 10, 260);
+  text("Mid " +tickMid+" ("+msMid/1000+" sec.)", 10, 220);
+  text("Hi "+tickHi+" ("+msHi/1000+" sec.)", 10, 240);
+  text("Tick "+(tickSwitch)+" ("+(obsTickLastSwitch)/1000+" sec.)", 10, 260);
 }
 
 
@@ -184,29 +193,64 @@ public class ObsClient extends WebSocketClient {
   public ObsClient( URI serverURI ) {
     super( serverURI );
   }
-
-  public void switchObsSource(String source) {
+    
+  // the trigger
+  public void switchObsSource() {
     float diffTickLast = millis() - obsTickLast;
     float randMaxLast = random(obsTickLengthFrom, obsTickLengthTo)*1000;
-
+    String source;
+    
     if (diffTickLast<randMaxLast)
       return;
     
     if(obsRemoteSourceMode=="source"){
-      source = obsSources[int(random(obsSources.length))];
+      this.setRandomItem("source");
+      source = obsTickSource;
+      
       c.send("{\"request-type\":\"SetSourceRender\",\"source\":\""+source+"\",\"render\":true}");
       this.offObsSource(source);
-    }
-    
+    }    
     
     if(obsRemoteSourceMode=="scene"){
-      source = obsScenes[int(random(obsScenes.length))];
+      this.setRandomItem("scene");
+      source = obsTickScene;
+      
       c.send("{\"request-type\":\"SetCurrentScene\",\"scene-name\":\""+source+"\"}");
     }
-
     
-
+    tickSwitch++;
+    obsTickLastSwitch =  diffTickLast;
     obsTickLast = millis();
+    
+    // draw the red box
+    fill(255, 0, 0);
+    rect((width/2), 10, (width/2)-10, 170);
+    
+  }
+  
+  // 
+  public void setRandomItem(String mode){
+    String item;
+    
+    if(mode=="source"){
+      item = obsSources[int(random(obsSources.length-1))];      
+      if(item==obsTickSource){
+        this.setRandomItem("source");
+      } else {
+        obsTickSource = item;
+      }
+      
+    }
+
+    if(mode=="scene"){
+      item = obsScenes[int(random(obsScenes.length-1))];      
+      if(item==obsTickScene){
+        this.setRandomItem("scene");
+      } else {
+        obsTickScene = item;
+      }
+    }
+    
   }
 
   //turn all sources off
@@ -246,4 +290,3 @@ public class ObsClient extends WebSocketClient {
     // if the error is fatal then onClose will be called additionally
   }
 }
-
