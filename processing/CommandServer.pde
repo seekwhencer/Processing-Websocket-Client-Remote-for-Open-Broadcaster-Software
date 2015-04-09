@@ -2,7 +2,9 @@
     Command Server for Websocket HTML-Client
 */
 public class CommandServer extends WebSocketServer {
-
+  
+  public int openConnections;
+  
   public CommandServer( int port ) {
     super( new InetSocketAddress( port ) );
   }
@@ -12,7 +14,7 @@ public class CommandServer extends WebSocketServer {
 
   @Override
   public void onOpen( WebSocket conn, ClientHandshake handshake ) {
-    openCmdConnections++;
+    this.openConnections++;
     //this.sendToAll( "CommandServer | new connection: " + handshake.getResourceDescriptor() );
     System.out.println( "CommandServer: "+conn.getRemoteSocketAddress().getAddress().getHostAddress() + " connected!" );
     
@@ -24,7 +26,7 @@ public class CommandServer extends WebSocketServer {
 
   @Override
     public void onClose( WebSocket conn, int code, String reason, boolean remote ) {
-    openCmdConnections--;
+    this.openConnections--;
     System.out.println( "CommandServer: "+conn + " has left" );
   }
 

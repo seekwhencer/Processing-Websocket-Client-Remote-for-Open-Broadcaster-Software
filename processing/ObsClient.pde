@@ -11,48 +11,11 @@ public class ObsClient extends WebSocketClient {
     super( serverURI );
   }
 
-  // the trigger
-  public void switchObsSource() {
-    float diffTickLast = millis() - obsTickLast;
-    float randMaxLast = random(obsTickLengthFrom, obsTickLengthTo)*1000;
-    String source;
-    String scene;
-
-    if (diffTickLast<randMaxLast)
-      return;
-
-    if (obsRemoteSourceMode=="source") {
-      this.setRandomItem("source");
-      source = obsTickSource;
-
-      // sends the tick source to the web client
-      if (openCmdConnections>0)
-        s.sendTick(source);
-
-      this.sendSourceSwitch(source);
-
-    }    
-
-    if (obsRemoteSourceMode=="scene") {
-      this.setRandomItem("scene");
-      scene = obsTickScene;
-      this.sendSceneSwitch(scene);
-    }
-
-    tickSwitch++;
-    obsTickLastSwitch =  diffTickLast;
-    obsTickLast = millis();
-
-    // draw the red tick box
-    fill(255, 0, 0);
-    rect((width/2), 10, (width/2)-10, 170);
-  }
-  
   
   //
   public void sendSourceSwitch(String source){
     c.send("{\"request-type\":\"SetSourceRender\",\"source\":\""+source+"\",\"render\":true}");
-    obsTickSource = source;
+    bp.tickSource = source;
     this.sendOffAllSources(source);
   }
   
@@ -60,32 +23,9 @@ public class ObsClient extends WebSocketClient {
   //
   public void sendSceneSwitch(String scene){
     c.send("{\"request-type\":\"SetCurrentScene\",\"scene-name\":\""+scene+"\"}");
-    obsTickScene = scene;
+    bp.tickScene = scene;
   }
 
-
-  // 
-  public void setRandomItem(String mode) {
-    String item;
-
-    if (mode=="source") {
-      item = obsSources[int(random(obsSources.length))];      
-      if (item==obsTickSource) {
-        this.setRandomItem("source");
-      } else {
-        obsTickSource = item;
-      }
-    }
-
-    if (mode=="scene") {
-      item = obsScenes[int(random(obsScenes.length))];      
-      if (item==obsTickScene) {
-        this.setRandomItem("scene");
-      } else {
-        obsTickScene = item;
-      }
-    }
-  }
 
   
   //

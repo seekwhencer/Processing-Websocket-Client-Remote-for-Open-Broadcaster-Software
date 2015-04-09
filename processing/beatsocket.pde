@@ -50,6 +50,9 @@ BeatListener bl;
 ObsClient c;
 CommandServer s;
 ArrayList<ObsScene> obsScenesList;
+BeatPilot bp;
+
+
 
 // use "source" or "scene"
 String obsRemoteSourceMode = "source";
@@ -120,6 +123,9 @@ void setup() {
 
   //init Websocket Command Server
   new ServerThread().start();
+  
+  //
+  bp = new BeatPilot();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,39 +145,33 @@ void draw() {
   if (kick == true) {
     fill(255, 255, 0);
     rect(10, 10, (width/2)-20, 50);
-    tickLo++;
-    msLo = millis() - msLoLast;
-    msLoLast = millis();
-    c.switchObsSource();
+    
+    bp.switchBeatSource(1);
   }
 
   if (snare == true) {
     fill(255, 0, 255);
     rect(10, 70, (width/2)-20, 50);
-    tickMid++;
-    msMid = millis()-msMidLast;
-    msMidLast = millis();
-    c.switchObsSource();
+    
+    bp.switchBeatSource(2);
   }
 
 
   if (hat == true) {
     fill(255);
     rect(10, 130, (width/2)-20, 50);
-    tickHi++;
-    msHi = millis()-msHiLast;
-    msHiLast = millis();
-    c.switchObsSource();
+    
+    bp.switchBeatSource(3);
   }
 
   fill( 0, 0, 0, 100 );
   rect(10, 200, (width/2)-20, 30);
   fill (250);
 
-  text("Lo "+tickLo+" ("+msLo/1000+" sec.)", 10, 200);
-  text("Mid " +tickMid+" ("+msMid/1000+" sec.)", 10, 220);
-  text("Hi "+tickHi+" ("+msHi/1000+" sec.)", 10, 240);
-  text("Tick "+(tickSwitch)+" ("+(obsTickLastSwitch)/1000+" sec.)", 10, 260);
+  text("Lo "+bp.countTickLo+" ("+bp.msLo/1000+" sec.)", 10, 200);
+  text("Mid " +bp.countTickMid+" ("+bp.msMid/1000+" sec.)", 10, 220);
+  text("Hi "+bp.countTickHi+" ("+bp.msHi/1000+" sec.)", 10, 240);
+  text("Tick "+(bp.countTickSwitch)+" ("+(bp.tickLastSwitch)/1000+" sec.)", 10, 260);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
