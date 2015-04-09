@@ -18,6 +18,9 @@ Who benefits from it?
 What is needed?
 --------------------------------------
 
+### This Processing Sketch and the Web Client
+[Download Master as Zip](https://github.com/seekwhencer/Processing-Websocket-Client-Remote-for-Open-Broadcaster-Software/archive/master.zip)
+
 ### Processing
 1. [Processing](https://processing.org/download)
 2. [Spacebrew Processing Library](https://github.com/Spacebrew/spacebrewP5) [download](https://github.com/Spacebrew/spacebrewP5/archive/master.zip)
@@ -57,3 +60,6 @@ C:\Users\my_windows_username\Documents\processing\libraries\spacebrew\library\We
 C:\Users\my_windows_username\Documents\processing\libraries\spacebrew\library\spacebrew.jar"
 C:\Users\my_windows_username\Documents\processing\libraries\napplet\library\napplet.jar"
 ```
+
+3. Download the Processing Sketch and Web Client and expand it somewhere on your Harddisk.
+4. Open the Sketch: "beatsocket.pde" and run.
