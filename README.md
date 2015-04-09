@@ -39,6 +39,8 @@ What is todo?
 --------------------------------------
 1. Download and install the main programs.
 2. Download the Processing Libraries and install them. But. How?
+3. Download the Processing Sketch and Web Client and expand it somewhere on your Harddisk.
+4. Open the Sketch: "beatsocket.pde" and run.
 
 ### How to install a Processing Library
 - Download the Sources
@@ -60,6 +62,3 @@ C:\Users\my_windows_username\Documents\processing\libraries\spacebrew\library\We
 C:\Users\my_windows_username\Documents\processing\libraries\spacebrew\library\spacebrew.jar"
 C:\Users\my_windows_username\Documents\processing\libraries\napplet\library\napplet.jar"
 ```
-
-3. Download the Processing Sketch and Web Client and expand it somewhere on your Harddisk.
-4. Open the Sketch: "beatsocket.pde" and run.
