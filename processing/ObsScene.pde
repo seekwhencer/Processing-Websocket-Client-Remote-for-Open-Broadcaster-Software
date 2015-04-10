@@ -5,6 +5,8 @@ public class ObsScene {
 
   public ArrayList<ObsSource> sources;
   private String name;
+  public boolean detection = true;
+  public boolean beat = true;
 
   public ObsScene( String name_ ) {
     this.name = name_;

@@ -6,7 +6,21 @@ public class BeatPilot {
   public boolean detection   = true;
   public String mode         = "source";
   
-  public float tickLengthFrom = 0.1; 
+  public String currentScene;
+  public String currentSource; 
+
+/*  
+  public String[] sources = {
+    "src1", "src2", "src3"
+  };
+
+  public String[] scenes = { 
+    "scn1", "scn2", "scn3", "scn4", "scn5"
+  };
+*/  
+  public ArrayList<ObsScene> obsScenesList;
+  
+  public float tickLengthFrom = 0.3; 
   public float tickLengthTo   = 5;
   
   public int tickLast;
@@ -64,34 +78,30 @@ public class BeatPilot {
     }
     
     
-    
-    
-    
     float diffTickLast = millis() - this.tickLast;
     float randMaxLast = random(this.tickLengthFrom, this.tickLengthTo)*1000;
 
+    // breaks
     if (diffTickLast<randMaxLast)
       return;
 
-    String source;
-    String scene;
 
     if (this.mode=="source") {
       this.setRandomItem("source");
-      source = this.tickSource;
+      this.currentSource = this.tickSource;
 
       // sends the tick source to the web client
       if (s.openConnections>0)
-        s.sendTick(source);
+        s.sendTick(this.currentSource);
 
-      c.sendSourceSwitch(source);
+      c.sendSourceSwitch(this.currentSource);
 
     }    
     
-    if (obsRemoteSourceMode=="scene") {
+    if (this.mode=="scene") {
       this.setRandomItem("scene");
-      scene = this.tickScene;
-      c.sendSceneSwitch(scene);
+      this.currentScene = this.tickScene;
+      c.sendSceneSwitch(this.currentScene);
     }
 
     countTickSwitch++;
@@ -109,25 +119,75 @@ public class BeatPilot {
   *
   */
   public void setRandomItem( String mode ) {
-    String item;
 
     if (mode=="source") {
-      item = obsSources[int(random(obsSources.length))];      
-      if (item==this.tickSource) {
-        this.setRandomItem("source");
+      ObsScene scene = this.getCurrentScene(); 
+      ObsSource source = scene.sources.get(int(random(scene.sources.size())));
+      if (source.name.equals(this.tickSource) || source.beat==false) { // exclude again the same and other not beat sources
+        this.setRandomItem("source"); // set recursive
       } else {
-        this.tickSource = item;
+        this.tickSource = source.name;
       }
     }
 
     if (mode=="scene") {
-      item = obsScenes[int(random(obsScenes.length))];      
-      if (item==this.tickScene) {
+      ObsScene scene = this.obsScenesList.get(int(random(this.obsScenesList.size())));
+      
+      
+      if (scene.name.equals(this.tickScene) || scene.beat==false) {
         this.setRandomItem("scene");
       } else {
         this.tickScene = item;
       }
     }
   }
-
+  
+  /*
+  *
+  */
+  public void setSourceRender(String scene, String source, boolean render){
+    for(int i=0; i<bp.obsScenesList.size(); i++){      
+      ObsScene obsScene = bp.obsScenesList.get(i);
+      if(obsScene.name.equals(scene)){
+        for(int ii=0; ii<obsScene.sources.size(); ii++){
+          ObsSource obsSource = obsScene.sources.get(ii);
+          if(obsScene.sources.get(ii).name.equals(source)){
+            obsSource.render = render;
+            if(render==true)
+              this.currentSource = source;
+              
+            return; 
+          }
+        }
+      }     
+    }
+  }
+  
+  
+  /*
+  *
+  */
+  public ObsScene getCurrentScene(){
+    for(int i=0; i<this.obsScenesList.size(); i++){
+      ObsScene obsScene = bp.obsScenesList.get(i);
+        if(obsScene.name.equals(this.currentScene)){
+          return obsScene; 
+        }
+    }
+    return new ObsScene("empty");
+  }
+  
+  /*
+  *
+  */
+  public ObsSource getCurrentSource(){
+    ObsScene currentScene = this.getCurrentScene();
+    for(int i=0; i<currentScene.sources.size(); i++){
+      if(currentScene.sources.get(i).name.equals(this.currentSource)){
+        return currentScene.sources.get(i);
+      }
+    }
+    return new ObsSource("empty",false);
+  }
+  
 }

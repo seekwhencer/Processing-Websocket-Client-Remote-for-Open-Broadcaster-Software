@@ -49,13 +49,8 @@ BeatListener bl;
 //
 ObsClient c;
 CommandServer s;
-ArrayList<ObsScene> obsScenesList;
 BeatPilot bp;
 
-
-
-// use "source" or "scene"
-String obsRemoteSourceMode = "source";
 
 //
 String obsRemoteHost  = "localhost";
@@ -64,42 +59,6 @@ String obsRemoteUrl   = "ws://"+obsRemoteHost+":"+obsRemotePort;
 
 String commandServerPort = "5555";
 
-//
-String[] obsSources = {
-  "src1", "src2", "src3"
-};
-
-String[] obsScenes = { 
-  "scn1", "scn2", "scn3", "scn4", "scn5"
-};
-
-String obsCurrentScene;
-
-
-
-//
-int obsTickLast;
-float obsTickLastSwitch;
-float obsTickLengthFrom = 0.1; 
-float obsTickLengthTo = 5;
-String obsTickSource;
-String obsTickScene;
-
-
-int tickLo = 0;
-int tickMid = 0;
-int tickHi = 0;
-int tickSwitch = 0;
-
-float msLo   = 0;
-float msMid  = 0;
-float msHi   = 0;
-
-float msLoLast   = 0;
-float msMidLast  = 0;
-float msHiLast   = 0;
-
-int openCmdConnections = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
@@ -172,6 +131,9 @@ void draw() {
   text("Mid " +bp.countTickMid+" ("+bp.msMid/1000+" sec.)", 10, 220);
   text("Hi "+bp.countTickHi+" ("+bp.msHi/1000+" sec.)", 10, 240);
   text("Tick "+(bp.countTickSwitch)+" ("+(bp.tickLastSwitch)/1000+" sec.)", 10, 260);
+  
+  text("Current Scene: "+bp.currentScene, (width/2)+10, 200);
+  text("Current Source: "+bp.currentSource, (width/2)+10, 220);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,7 @@ public class ObsSource {
 
   private String name = "";
   private Boolean render = true;
+  private Boolean beat = true;
 
   public ObsSource( String name_, Boolean render_ ) {
     this.name = name_;

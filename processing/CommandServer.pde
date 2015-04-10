@@ -72,19 +72,19 @@ public class CommandServer extends WebSocketServer {
   */
   public void sendScenes() {
     String jsonCmd = "{";
-    jsonCmd = jsonCmd + "\"current_scene\":\""+obsCurrentScene+"\",";
+    jsonCmd = jsonCmd + "\"current_scene\":\""+bp.currentScene+"\",";
     jsonCmd = jsonCmd + "\"scenes\" : [ ";
-    for (int i=0; i < obsScenesList.size (); i++) {
+    for (int i=0; i < bp.obsScenesList.size (); i++) {
       String jc = "{";
-      jc = jc + "\"name\" : \""+obsScenesList.get(i).getName()+"\" ";
-      if (obsScenesList.get(i).sources.size()>0) {
+      jc = jc + "\"name\" : \""+bp.obsScenesList.get(i).getName()+"\" ";
+      if (bp.obsScenesList.get(i).sources.size()>0) {
         jc = jc + ", \"sources\" : [";
-        for (int ii=0; ii < obsScenesList.get (i).sources.size(); ii++) {
-          String source = obsScenesList.get(i).sources.get(ii).getName();
-          Boolean render = obsScenesList.get(i).sources.get(ii).getRender();
+        for (int ii=0; ii < bp.obsScenesList.get (i).sources.size(); ii++) {
+          String source = bp.obsScenesList.get(i).sources.get(ii).getName();
+          Boolean render = bp.obsScenesList.get(i).sources.get(ii).getRender();
 
           jc = jc + "{\"name\":\""+source+"\",\"render\":"+render+"}";
-          if (ii<obsScenesList.get(i).sources.size()-1)
+          if (ii<bp.obsScenesList.get(i).sources.size()-1)
             jc = jc + ",";
         }
         jc = jc + "]";
@@ -92,7 +92,7 @@ public class CommandServer extends WebSocketServer {
       }
       jsonCmd = jsonCmd + jc;
       jsonCmd = jsonCmd + "}";
-      if (i<obsScenesList.size()-1)
+      if (i<bp.obsScenesList.size()-1)
           jsonCmd = jsonCmd + ",";
     }
     jsonCmd = jsonCmd + "]}";
@@ -103,7 +103,7 @@ public class CommandServer extends WebSocketServer {
   *
   */
   public void sendCurrentScene(){
-    this.sendToAll("{\"current_scene\":\""+obsCurrentScene+"\"}");
+    this.sendToAll("{\"current_scene\":\""+bp.currentScene+"\"}");
   }
   
   /*

@@ -3,6 +3,8 @@
 */
 public class ObsClient extends WebSocketClient {
 
+  public boolean debug_message = false;
+  
   public ObsClient( URI serverUri, Draft draft ) {
     super( serverUri, draft );
   }
@@ -34,23 +36,38 @@ public class ObsClient extends WebSocketClient {
 
     // the current scene?
     if (m.hasKey("current-scene")) {
-      obsCurrentScene = m.getString("current-scene");
+      bp.currentScene = m.getString("current-scene");
+    }
+    
+    // get obs changes
+    if(m.hasKey("update-type")){      
+      
+      // scene changed
+      if(m.hasKey("scene-name")){
+        bp.currentScene = m.getString("scene-name");
+      }
+      
+      // source changed
+      if(m.hasKey("source-name")){
+        JSONObject source = m.getJSONObject("source");
+        bp.setSourceRender(bp.currentScene, m.getString("source-name"), source.getBoolean("render"));
+      }    
     }
 
     // build scenes and sources
     if (m.hasKey("scenes")) {
       JSONArray scenes = m.getJSONArray("scenes");
 
-      obsScenesList = new ArrayList<ObsScene>();
+      bp.obsScenesList = new ArrayList<ObsScene>();
 
       for (int i=0; i<scenes.size (); i++) {
         JSONObject scene    = scenes.getJSONObject(i);
         JSONArray sources   = scene.getJSONArray("sources");
         String scene_name   = scene.getString("name");
 
-        obsScenesList.add(i, new ObsScene(scene_name));
+        bp.obsScenesList.add(i, new ObsScene(scene_name));
 
-        ObsScene obsScene = obsScenesList.get(i);
+        ObsScene obsScene = bp.obsScenesList.get(i);
 
         for (int ii=0; ii<sources.size (); ii++) {
           JSONObject source  = sources.getJSONObject(ii);
@@ -68,9 +85,10 @@ public class ObsClient extends WebSocketClient {
 
   //turn all sources off
   public void sendOffAllSources(String source) {
-    for (String i : obsSources) {
-      if (i!=source) {
-        c.send("{\"request-type\":\"SetSourceRender\",\"source\":\""+i+"\",\"render\":false}");
+    ObsScene currentScene =  bp.getCurrentScene();
+    for (int i=0; i<currentScene.sources.size(); i++) {
+      if (! currentScene.sources.get(i).name.equals(source) ) {
+        c.send("{\"request-type\":\"SetSourceRender\",\"source\":\""+currentScene.sources.get(i).name+"\",\"render\":false}");
       }
     }
   }
@@ -97,17 +115,19 @@ public class ObsClient extends WebSocketClient {
 
   @Override
   public void onMessage( String message ) {
-    //System.out.println( "ObsClient: received " + message );
+    if(debug_message==true)
+      System.out.println( "ObsClient: received " + message );
+    
     this.processResponse(message);
   }
 
   @Override
-    public void onClose( int code, String reason, boolean remote ) {
+  public void onClose( int code, String reason, boolean remote ) {
     System.out.println( "Connection closed by " + ( remote ? "remote peer" : "us" ) );
   }
 
   @Override
-    public void onError( Exception ex ) {
+  public void onError( Exception ex ) {
     ex.printStackTrace();
     // if the error is fatal then onClose will be called additionally
   }
