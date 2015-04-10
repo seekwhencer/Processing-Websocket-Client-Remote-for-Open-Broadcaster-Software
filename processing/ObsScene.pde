@@ -24,4 +24,24 @@ public class ObsScene {
   public ObsSource getSource(int index_) {
     return sources.get(index_);
   }
+  
+  public ObsSource getSourceByName(String name){
+    for(int i=0; i<this.sources.size(); i++){
+      if(this.sources.get(i).name.equals(name)){
+        return this.sources.get(i);
+      }
+    }
+    return new ObsSource("empty",false);
+  }
+  
+  public int countBeatSources(){
+    int count = 0;
+    for(int i=0; i<this.sources.size(); i++){
+      if(this.sources.get(i).beat==true){
+        count++;
+      }
+    }
+    return count;
+  }
+  
 }

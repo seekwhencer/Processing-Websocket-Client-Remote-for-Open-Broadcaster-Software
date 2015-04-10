@@ -19,4 +19,10 @@ public class ObsSource {
   public Boolean getRender() {
     return render;
   }
+  
+  public Boolean getBeat(){
+    return beat;
+  }
+  
+  
 }

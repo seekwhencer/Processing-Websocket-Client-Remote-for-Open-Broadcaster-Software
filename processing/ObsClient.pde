@@ -3,7 +3,7 @@
 */
 public class ObsClient extends WebSocketClient {
 
-  public boolean debug_message = false;
+  public boolean debug_message = true;
   
   public ObsClient( URI serverUri, Draft draft ) {
     super( serverUri, draft );
@@ -19,6 +19,10 @@ public class ObsClient extends WebSocketClient {
     c.send("{\"request-type\":\"SetSourceRender\",\"source\":\""+source+"\",\"render\":true}");
     bp.tickSource = source;
     this.sendOffAllSources(source);
+  }
+  
+  public void sendSourceRender(String source, boolean render){
+    c.send("{\"request-type\":\"SetSourceRender\",\"source\":\""+source+"\",\"render\":"+render+"}");
   }
   
   
@@ -51,6 +55,7 @@ public class ObsClient extends WebSocketClient {
       if(m.hasKey("source-name")){
         JSONObject source = m.getJSONObject("source");
         bp.setSourceRender(bp.currentScene, m.getString("source-name"), source.getBoolean("render"));
+        s.sendScenes();
       }    
     }
 
@@ -87,7 +92,7 @@ public class ObsClient extends WebSocketClient {
   public void sendOffAllSources(String source) {
     ObsScene currentScene =  bp.getCurrentScene();
     for (int i=0; i<currentScene.sources.size(); i++) {
-      if (! currentScene.sources.get(i).name.equals(source) ) {
+      if (! currentScene.sources.get(i).name.equals(source) &&  currentScene.sources.get(i).getBeat()==true ) {
         c.send("{\"request-type\":\"SetSourceRender\",\"source\":\""+currentScene.sources.get(i).name+"\",\"render\":false}");
       }
     }

@@ -123,21 +123,25 @@ public class BeatPilot {
     if (mode=="source") {
       ObsScene scene = this.getCurrentScene(); 
       ObsSource source = scene.sources.get(int(random(scene.sources.size())));
-      if (source.name.equals(this.tickSource) || source.beat==false) { // exclude again the same and other not beat sources
-        this.setRandomItem("source"); // set recursive
-      } else {
-        this.tickSource = source.name;
+      
+      if(scene.countBeatSources()>1){
+        if (source.name.equals(this.tickSource) || source.beat==false) { // exclude again the same and other not beat sources
+          this.setRandomItem("source"); // set recursive
+        } else {
+          this.tickSource = source.name;
+        }
       }
     }
 
     if (mode=="scene") {
       ObsScene scene = this.obsScenesList.get(int(random(this.obsScenesList.size())));
       
-      
-      if (scene.name.equals(this.tickScene) || scene.beat==false) {
-        this.setRandomItem("scene");
-      } else {
-        this.tickScene = item;
+      if(this.countBeatScenes()>1){
+        if (scene.name.equals(this.tickScene) || scene.beat==false) {
+          this.setRandomItem("scene");
+        } else {
+          this.tickScene = scene.name;
+        }
       }
     }
   }
@@ -188,6 +192,44 @@ public class BeatPilot {
       }
     }
     return new ObsSource("empty",false);
+  }
+  
+  /*
+  *
+  */
+  public void toggleSource(String name){
+    ObsScene currentScene = this.getCurrentScene();
+    ObsSource source = currentScene.getSourceByName(name);
+    switch (int(source.render)) {
+      case 1: source.render=false; break;
+      case 0: source.render=true;  break;
+    }
+    c.sendSourceRender(source.name,source.render);
+  }
+  
+  /*
+  *
+  */
+  public void toggleBeatSource(String name){
+    ObsScene currentScene = this.getCurrentScene();
+    ObsSource source = currentScene.getSourceByName(name);
+    switch (int(source.beat)) {
+      case 1: source.beat=false; break;
+      case 0: source.beat=true; break;
+    }
+  }
+  
+  /*
+  *
+  */
+   public int countBeatScenes(){
+    int count = 0;
+    for(int i=0; i<this.obsScenesList.size(); i++){
+      if(this.obsScenesList.get(i).beat==true){
+        count++;
+      }
+    }
+    return count;
   }
   
 }

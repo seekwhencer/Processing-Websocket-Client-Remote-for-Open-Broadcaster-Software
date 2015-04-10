@@ -32,6 +32,7 @@ public class CommandServer extends WebSocketServer {
 
   @Override
     public void onMessage( WebSocket conn, String message ) {
+    this.processMessage(message);
     //this.sendToAll( message );
     System.out.println( conn + ": " + message );
   }
@@ -49,14 +50,28 @@ public class CommandServer extends WebSocketServer {
       // some errors like port binding failed may not be assignable to a specific websocket
     }
   }
-  /**
-   * Sends <var>text</var> to all currently connected WebSocket clients.
-   *
-   * @param text
-   * The String to send across the network.
-   * @throws InterruptedException
-   * When socket related I/O errors occur.
-   */
+  
+  /*
+  *
+  */
+  public void processMessage(String message){
+    JSONObject m = JSONObject.parse( message );
+    
+    if (m.hasKey("toggle-beat-source")) {
+      bp.toggleBeatSource(m.getString("toggle-beat-source"));
+      this.sendScenes();
+    }
+    
+    if (m.hasKey("toggle-source")) {
+      bp.toggleSource(m.getString("toggle-source"));
+      this.sendScenes();
+    }
+    
+  }
+
+  /*
+  *
+  */
   public void sendToAll( String text ) {
     Collection<WebSocket> con = connections();
     synchronized ( con ) {
@@ -82,8 +97,9 @@ public class CommandServer extends WebSocketServer {
         for (int ii=0; ii < bp.obsScenesList.get (i).sources.size(); ii++) {
           String source = bp.obsScenesList.get(i).sources.get(ii).getName();
           Boolean render = bp.obsScenesList.get(i).sources.get(ii).getRender();
-
-          jc = jc + "{\"name\":\""+source+"\",\"render\":"+render+"}";
+          Boolean beat = bp.obsScenesList.get(i).sources.get(ii).getBeat();
+          
+          jc = jc + "{\"name\":\""+source+"\",\"render\":"+render+",\"beat\":"+beat+"}";
           if (ii<bp.obsScenesList.get(i).sources.size()-1)
             jc = jc + ",";
         }
