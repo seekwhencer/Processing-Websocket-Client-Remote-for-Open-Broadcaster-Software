@@ -3,7 +3,7 @@
 */
 public class ObsClient extends WebSocketClient {
 
-  public boolean debug_message = true;
+  public boolean debug_message = false;
   
   public ObsClient( URI serverUri, Draft draft ) {
     super( serverUri, draft );

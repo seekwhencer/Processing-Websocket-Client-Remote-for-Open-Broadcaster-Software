@@ -222,6 +222,29 @@ public class BeatPilot {
   /*
   *
   */
+  public void toggleScene(String name){
+    ObsScene scene = this.getSceneByName(name);
+    this.currentScene = scene.name;
+    this.tickScene = scene.name;
+    c.sendSceneSwitch(scene.name);
+  }
+  
+  /*
+  *
+  */
+  public ObsScene getSceneByName(String name){
+    for(int i=0; i<this.obsScenesList.size(); i++){
+      if(this.obsScenesList.get(i).name.equals(name)){
+        return this.obsScenesList.get(i);
+      }
+    }
+    return new ObsScene("empty");
+  }
+  
+  
+  /*
+  *
+  */
    public int countBeatScenes(){
     int count = 0;
     for(int i=0; i<this.obsScenesList.size(); i++){

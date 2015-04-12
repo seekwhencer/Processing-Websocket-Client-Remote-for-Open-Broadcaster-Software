@@ -67,6 +67,11 @@ public class CommandServer extends WebSocketServer {
       this.sendScenes();
     }
     
+    if (m.hasKey("toggle-scene")) {
+      bp.toggleScene(m.getString("toggle-scene"));
+      this.sendScenes();
+    }
+    
   }
 
   /*

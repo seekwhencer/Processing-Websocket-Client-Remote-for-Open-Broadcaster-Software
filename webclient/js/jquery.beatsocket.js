@@ -143,7 +143,9 @@
         // GUI Behavior
         var GuiBehavior = {
             sceneButton : function(){
-                console.log($(this).text());
+                connection.command.send(JSON.stringify({"toggle-scene":$(this).text()}));
+                $(this).toggleClass('active');
+                console.log("toggle scene: "+$(this).text());
             },
             
             sourceButton : function(){
