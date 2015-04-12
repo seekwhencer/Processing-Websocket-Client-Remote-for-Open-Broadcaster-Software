@@ -7,7 +7,7 @@
             var that = this;
             setTimeout( function(){
                 that.blur();
-            },250);
+            },10);
         });
         
         beatsocket = $('#beatsocket').beatsocket();

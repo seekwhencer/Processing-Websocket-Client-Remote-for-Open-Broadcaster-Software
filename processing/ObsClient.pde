@@ -49,13 +49,14 @@ public class ObsClient extends WebSocketClient {
       // scene changed
       if(m.hasKey("scene-name")){
         bp.currentScene = m.getString("scene-name");
+        s.sendScenes();
       }
       
       // source changed
       if(m.hasKey("source-name")){
         JSONObject source = m.getJSONObject("source");
         bp.setSourceRender(bp.currentScene, m.getString("source-name"), source.getBoolean("render"));
-        s.sendScenes();
+        //s.sendScenes();
       }    
     }
 

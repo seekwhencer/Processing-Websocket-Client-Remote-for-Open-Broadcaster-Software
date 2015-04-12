@@ -26,6 +26,7 @@
         var $target = $(this);
         var options = {};
         var connection = { command:false, obsremote:false };
+        var click_break = false;
 
         var params  = args;
 
@@ -50,7 +51,47 @@
         // GUI
         var Gui = {
             
+            mixPanel : false,
+            sliderPanel : false,
+            
+            drawMixPanel : function(){
+                
+                console.log('draw panel');
+                if(Gui.mixPanel==false) {
+                    var panelRow = $('<div/>',{
+                        id : 'MixPanel',
+                        class : 'row-fluid'
+                    });
+                    $(target).append(panelRow);
+                    Gui.mixPanel = true;
+                } else {
+                    console.log('flush');
+                    $('MixPanel').html('');
+                }
+                
+                Gui.drawScenes();
+            },
+            
+            drawSliderPanel : function(){
+                
+                console.log('draw slider panel');
+                if(Gui.sliderPanel==false) {
+                    var sliderpanelRow = $('<div/>',{
+                        id : 'SliderPanel',
+                        class : ''
+                    });
+                    $(target).append(sliderpanelRow);
+                    Gui.sliderPanel = true;
+                } else {
+                    $('SliderPanel').html('');
+                }
+                
+                Gui.drawSlider();
+            },
+            
             drawScenes : function(){
+                
+                var mixPanel = $('#MixPanel'); 
                 
                 var scenesRow = $('<div/>',{
                     id : 'RowScenes',
@@ -65,13 +106,15 @@
                     sceneButton.on('click',GuiBehavior.sceneButton);
                     scenesRow.append(sceneButton);
                 }
-                $target.html(scenesRow);
+                
+                $(mixPanel).html(scenesRow);
                 
                 Gui.drawSources(options.current_scene);
                 Gui.drawBeatSources(options.current_scene);
             },
             
             drawSources : function(scene){
+                var mixPanel = $('#MixPanel'); 
                 var sourcesRow = $('<div/>',{
                     id : 'RowSources',
                     class : 'col-xs-7'
@@ -100,12 +143,13 @@
                     }
                 }
                 
-                $target.append(sourcesRow);
+                $(mixPanel).append(sourcesRow);
                 
                 
             },
             
             drawBeatSources : function(scene){
+                var mixPanel = $('#MixPanel'); 
                 var sourcesRow = $('<div/>',{
                     id : 'RowBeatSources',
                     class : 'col-xs-2'
@@ -116,7 +160,7 @@
                         for(var ii in options.scenes[i].sources){
                             var beatsourceButton = $('<button/>',{
                                class    : 'btn btn-beat col-xs-12',
-                               text     : 'BP',
+                               text     : 'B',
                                "data-beat" : options.scenes[i].sources[ii].name
                             });
                             
@@ -130,8 +174,46 @@
                     }
                 }
                 
-                $target.append(sourcesRow);
+                $(mixPanel).append(sourcesRow);
                 
+            },
+            
+            drawSlider : function(){
+                var sliderPanel = $('#SliderPanel'); 
+                var sliderRow = $('<div/>',{
+                    id : 'RowSlider',
+                    class : ''
+                });
+                
+                $(sliderPanel).html(sliderRow);
+                
+                var current_scene = getCurrentScene();
+                
+                $('#RowSlider').slider({
+                    min : 0.1,
+                    max : 30,
+                    step: 0.1,
+                    value : [current_scene.range.from,current_scene.range.to],
+                    width : '100%',
+                    tooltip: 'always',
+                    range:false
+                    
+                });
+                
+                $('#RowSlider').on('slide',function(e){
+                   connection.command.send(JSON.stringify({"change-range":{from:e.value[0],to:e.value[1]}}));
+                   console.log(e.value);  
+                });
+
+                
+                
+                
+                $('a, button').on('click',function(){
+                    var that = this;
+                    setTimeout( function(){
+                        that.blur();
+                    },10);
+                });
             }
             
               
@@ -142,6 +224,7 @@
         
         // GUI Behavior
         var GuiBehavior = {
+
             sceneButton : function(){
                 connection.command.send(JSON.stringify({"toggle-scene":$(this).text()}));
                 $(this).toggleClass('active');
@@ -155,9 +238,13 @@
                 console.log("toggle source: "+$(this).text());
             },
             
-            beatsourceButton : function(){
+            beatsourceButton : function(){               
+                if($('#RowBeatSources button.active').length<3 && $(this).hasClass('active'))
+                    return;
+                
                 connection.command.send(JSON.stringify({"toggle-beat-source":$(this).data('beat')}));
                 $(this).toggleClass('active');
+                $('#RowSources button').eq($(this).index()).toggleClass('beat');
                 console.log("toggle beat source: "+$(this).data('beat'));
             }
         };
@@ -176,6 +263,8 @@
             $('#btnDisconnect').on('click',function(){
                 closeCommandServer();
             });
+            
+            
             
             
             
@@ -254,7 +343,11 @@
             }
             if(data.scenes!=undefined){
                 options.scenes = data.scenes;
-                Gui.drawScenes();                      }
+                options.current_scene = data.current_scene;
+                Gui.drawSliderPanel();
+                Gui.drawMixPanel();
+            }
+            
             
             if(data.current_scene!=undefined){
                options.current_scene = data.current_scene;
@@ -262,6 +355,19 @@
                $("button[data-name='"+options.current_scene+"']").toggleClass('active');
                //console.log('Current Scene: '+options.current_scene);
             }
+        }
+        
+        /*
+         * 
+         */
+        function getCurrentScene(){
+            for(var i in options.scenes){
+                if(options.scenes[i].name == options.current_scene){
+                    return { range: { from : options.scenes[i].range.from, to : options.scenes[i].range.to}};
+                }
+            }
+            
+            
         }
         
         /*

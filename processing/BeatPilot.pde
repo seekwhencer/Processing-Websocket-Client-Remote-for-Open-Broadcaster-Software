@@ -8,20 +8,11 @@ public class BeatPilot {
   
   public String currentScene;
   public String currentSource; 
-
-/*  
-  public String[] sources = {
-    "src1", "src2", "src3"
-  };
-
-  public String[] scenes = { 
-    "scn1", "scn2", "scn3", "scn4", "scn5"
-  };
-*/  
+ 
   public ArrayList<ObsScene> obsScenesList;
   
-  public float tickLengthFrom = 0.3; 
-  public float tickLengthTo   = 5;
+//  public float tickLengthFrom = 0.3; 
+//  public float tickLengthTo   = 5;
   
   public int tickLast;
   public float tickLastSwitch;
@@ -77,9 +68,10 @@ public class BeatPilot {
       
     }
     
+    ObsScene current_scene = this.getCurrentScene();
     
     float diffTickLast = millis() - this.tickLast;
-    float randMaxLast = random(this.tickLengthFrom, this.tickLengthTo)*1000;
+    float randMaxLast = random(current_scene.tickLengthFrom, current_scene.tickLengthTo)*1000;
 
     // breaks
     if (diffTickLast<randMaxLast)
@@ -223,10 +215,10 @@ public class BeatPilot {
   *
   */
   public void toggleScene(String name){
-    ObsScene scene = this.getSceneByName(name);
-    this.currentScene = scene.name;
-    this.tickScene = scene.name;
-    c.sendSceneSwitch(scene.name);
+    this.currentScene = name;
+    this.tickScene = name;
+    c.sendSceneSwitch(name);
+
   }
   
   /*
@@ -253,6 +245,15 @@ public class BeatPilot {
       }
     }
     return count;
+  }
+  
+  /*
+  *
+  */
+  public void changeRange(JSONObject range){
+    ObsScene current_scene = this.getCurrentScene();
+    current_scene.tickLengthFrom = range.getFloat("from");
+    current_scene.tickLengthTo = range.getFloat("to");
   }
   
 }

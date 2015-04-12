@@ -7,6 +7,8 @@ public class ObsScene {
   private String name;
   public boolean detection = true;
   public boolean beat = true;
+  public float tickLengthFrom = 0.1; 
+  public float tickLengthTo   = 5;
 
   public ObsScene( String name_ ) {
     this.name = name_;

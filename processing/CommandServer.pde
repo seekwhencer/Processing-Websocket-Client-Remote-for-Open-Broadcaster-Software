@@ -32,9 +32,10 @@ public class CommandServer extends WebSocketServer {
 
   @Override
     public void onMessage( WebSocket conn, String message ) {
-    this.processMessage(message);
+      System.out.println("Command Server: "+conn + ": " + message );
+      this.processMessage(message, conn);
     //this.sendToAll( message );
-    System.out.println( conn + ": " + message );
+   
   }
 
   /*@Override
@@ -54,22 +55,25 @@ public class CommandServer extends WebSocketServer {
   /*
   *
   */
-  public void processMessage(String message){
+  public void processMessage(String message, WebSocket conn){
     JSONObject m = JSONObject.parse( message );
     
     if (m.hasKey("toggle-beat-source")) {
       bp.toggleBeatSource(m.getString("toggle-beat-source"));
-      this.sendScenes();
     }
     
     if (m.hasKey("toggle-source")) {
       bp.toggleSource(m.getString("toggle-source"));
-      this.sendScenes();
     }
     
     if (m.hasKey("toggle-scene")) {
       bp.toggleScene(m.getString("toggle-scene"));
-      this.sendScenes();
+        this.sendScenes();
+    }
+    
+    if (m.hasKey("change-range")) {
+      bp.changeRange(m.getJSONObject("change-range"));
+      
     }
     
   }
@@ -93,10 +97,12 @@ public class CommandServer extends WebSocketServer {
   public void sendScenes() {
     String jsonCmd = "{";
     jsonCmd = jsonCmd + "\"current_scene\":\""+bp.currentScene+"\",";
+    
     jsonCmd = jsonCmd + "\"scenes\" : [ ";
     for (int i=0; i < bp.obsScenesList.size (); i++) {
       String jc = "{";
-      jc = jc + "\"name\" : \""+bp.obsScenesList.get(i).getName()+"\" ";
+      jc = jc + "\"name\" : \""+bp.obsScenesList.get(i).getName()+"\", ";
+      jc = jc + "\"range\" : {\"from\":"+bp.obsScenesList.get(i).tickLengthFrom+",\"to\":"+bp.obsScenesList.get(i).tickLengthTo+"} ";
       if (bp.obsScenesList.get(i).sources.size()>0) {
         jc = jc + ", \"sources\" : [";
         for (int ii=0; ii < bp.obsScenesList.get (i).sources.size(); ii++) {
@@ -116,8 +122,10 @@ public class CommandServer extends WebSocketServer {
       if (i<bp.obsScenesList.size()-1)
           jsonCmd = jsonCmd + ",";
     }
-    jsonCmd = jsonCmd + "]}";
+    jsonCmd = jsonCmd + "]";
+    jsonCmd = jsonCmd + "}";
     this.sendToAll(jsonCmd);
+    System.out.println("Command Server: send Scenes" );
   }
   
   /*
