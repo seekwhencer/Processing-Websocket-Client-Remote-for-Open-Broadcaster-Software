@@ -78,7 +78,7 @@
                 if(Gui.sliderPanel==false) {
                     var sliderpanelRow = $('<div/>',{
                         id : 'SliderPanel',
-                        class : ''
+                        class : 'row-fluid'
                     });
                     $(target).append(sliderpanelRow);
                     Gui.sliderPanel = true;
@@ -182,39 +182,76 @@
                 var sliderPanel = $('#SliderPanel'); 
                 var sliderRow = $('<div/>',{
                     id : 'RowSlider',
-                    class : ''
+                    class : 'col-xs-10'
                 });
+                
+                if(getCurrentSceneDetection()==false){
+                    sliderRow.addClass('inactive');
+                }
+                
+                sliderRow.html('<div id="RangeSlider"></div>');
                 
                 $(sliderPanel).html(sliderRow);
                 
-                var current_scene = getCurrentScene();
+;
+                var range = getCurrentSceneRange();
                 
-                $('#RowSlider').slider({
+                $('#RangeSlider').slider({
                     min : 0.1,
                     max : 30,
                     step: 0.1,
-                    value : [current_scene.range.from,current_scene.range.to],
+                    value : [range.from,range.to],
                     width : '100%',
                     tooltip: 'always',
                     range:false
                     
                 });
                 
-                $('#RowSlider').on('slide',function(e){
+                $('#RangeSlider').on('slide',function(e){
                    connection.command.send(JSON.stringify({"change-range":{from:e.value[0],to:e.value[1]}}));
-                   console.log(e.value);  
+                   $(this).prop( { md:true} );
+                   //console.log(e.value);  
+                });            
+                
+                $('#RangeSlider').on('slideStop',function(){
+                    $(this).prop( { md:false} );
                 });
-
                 
                 
                 
+                $('#RangeSlider').prop( { md:false} );
+                
+                Gui.drawToggleDetection();
+                    
+            },
+            
+            
+            drawToggleDetection : function(current_scene){
+                var sliderPanel = $('#SliderPanel'); 
+                var toggleButton = $('<button/>',{
+                       class    : 'btn btn-source col-xs-12',
+                       text     : "ON"
+                });
+                
+                toggleButton.on('click',GuiBehavior.toggledetectionButton);
+                
+                if(getCurrentSceneDetection()==true){
+                    toggleButton.addClass('active');
+                }
+                
+                var toggleCell = $('<div/>', { class : 'col-xs-2' });
+                
+                sliderPanel.append(toggleCell.html(toggleButton));
+                
+                
+                // the end
                 $('a, button').on('click',function(){
                     var that = this;
                     setTimeout( function(){
                         that.blur();
                     },10);
                 });
-            }
+            },
             
               
         }; 
@@ -246,6 +283,13 @@
                 $(this).toggleClass('active');
                 $('#RowSources button').eq($(this).index()).toggleClass('beat');
                 console.log("toggle beat source: "+$(this).data('beat'));
+            },
+            
+            toggledetectionButton : function(){
+                connection.command.send(JSON.stringify({"toggle-scene-detection":options.current_scene}));
+                $(this).toggleClass('active');
+                $('#RowSlider').toggleClass('inactive');
+                console.log("toggle beat detection: "+options.current_scene);
             }
         };
     
@@ -342,6 +386,10 @@
             
             }
             if(data.scenes!=undefined){
+                console.log($('#RangeSlider').prop('md'));
+                if($('#RangeSlider').prop('md')==true)
+                    return;
+                    
                 options.scenes = data.scenes;
                 options.current_scene = data.current_scene;
                 Gui.drawSliderPanel();
@@ -360,14 +408,23 @@
         /*
          * 
          */
-        function getCurrentScene(){
+        function getCurrentSceneRange(){
             for(var i in options.scenes){
-                if(options.scenes[i].name == options.current_scene){
-                    return { range: { from : options.scenes[i].range.from, to : options.scenes[i].range.to}};
+                if(options.scenes[i].name == options.current_scene) {
+                    return { from : options.scenes[i].range.from, to : options.scenes[i].range.to };
                 }
             }
-            
-            
+        }
+        
+        /*
+         * 
+         */
+        function getCurrentSceneDetection(){
+            for(var i in options.scenes){
+                if(options.scenes[i].name == options.current_scene) {
+                    return options.scenes[i].detection;
+                }
+            }
         }
         
         /*

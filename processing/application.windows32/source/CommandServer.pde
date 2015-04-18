@@ -18,9 +18,9 @@ public class CommandServer extends WebSocketServer {
     //this.sendToAll( "CommandServer | new connection: " + handshake.getResourceDescriptor() );
     System.out.println( "CommandServer: "+conn.getRemoteSocketAddress().getAddress().getHostAddress() + " connected!" );
     
-    //c.getSceneList();
+    c.getSceneList();
     this.sendCurrentScene();
-    this.sendScenes("after login");
+    this.sendScenes();
     
   }
 
@@ -60,17 +60,15 @@ public class CommandServer extends WebSocketServer {
     
     if (m.hasKey("toggle-beat-source")) {
       bp.toggleBeatSource(m.getString("toggle-beat-source"));
-      this.sendScenes("when beat source toggled");
     }
     
     if (m.hasKey("toggle-source")) {
       bp.toggleSource(m.getString("toggle-source"));
-      this.sendScenes("when a source toggled");
     }
     
     if (m.hasKey("toggle-scene")) {
       bp.toggleScene(m.getString("toggle-scene"));
-        this.sendScenes("when a scene toggled");
+        this.sendScenes();
     }
     
     if (m.hasKey("change-range")) {
@@ -79,7 +77,6 @@ public class CommandServer extends WebSocketServer {
     
     if (m.hasKey("toggle-scene-detection")) {
       bp.toggleSceneDetection(m.getString("toggle-scene-detection"));
-      this.sendScenes("when the scene beat detection toggled");
       
     }
     
@@ -101,7 +98,7 @@ public class CommandServer extends WebSocketServer {
   /*
   *
   */
-  public void sendScenes(String use) {
+  public void sendScenes() {
     String jsonCmd = "{";
     jsonCmd = jsonCmd + "\"current_scene\":\""+bp.currentScene+"\",";
     
@@ -133,7 +130,7 @@ public class CommandServer extends WebSocketServer {
     jsonCmd = jsonCmd + "]";
     jsonCmd = jsonCmd + "}";
     this.sendToAll(jsonCmd);
-    System.out.println("Command Server: send Scenes "+use );
+    System.out.println("Command Server: send Scenes" );
   }
   
   /*

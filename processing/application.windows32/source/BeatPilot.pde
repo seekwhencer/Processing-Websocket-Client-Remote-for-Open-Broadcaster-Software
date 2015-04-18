@@ -11,9 +11,11 @@ public class BeatPilot {
  
   public ArrayList<ObsScene> obsScenesList;
   
+//  public float tickLengthFrom = 0.3; 
+//  public float tickLengthTo   = 5;
+  
   public int tickLast;
   public float tickLastSwitch;
-  public float lastRangeChange = -1;
   
   public String tickSource;
   public String tickScene;  
@@ -254,7 +256,6 @@ public class BeatPilot {
     ObsScene current_scene = this.getCurrentScene();
     current_scene.tickLengthFrom = range.getFloat("from");
     current_scene.tickLengthTo = range.getFloat("to");
-    this.lastRangeChange = float(millis());
   }
   
   /*
@@ -265,20 +266,6 @@ public class BeatPilot {
     switch (int(scene.detection)) {
       case 1: scene.detection=false; break;
       case 0: scene.detection=true; break;
-    }
-  }
-  /*
-  *
-  */
-  public void processFrame(){
-    // send scene set if range change ends
-
-    if(this.lastRangeChange == -1)
-      return;
-    
-    if(this.lastRangeChange < float (millis()) - 10){
-      s.sendScenes("50ms after range change");
-      this.lastRangeChange = -1;
     }
   }
   

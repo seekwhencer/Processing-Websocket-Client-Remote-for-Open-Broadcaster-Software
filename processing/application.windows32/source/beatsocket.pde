@@ -122,8 +122,6 @@ void draw() {
     
     bp.switchBeatSource(3);
   }
-  
-  bp.processFrame();
 
   fill( 0, 0, 0, 100 );
   rect(10, 200, (width/2)-20, 30);

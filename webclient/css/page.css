@@ -45,7 +45,9 @@ a:hover {
 #RowBeatSources button { margin-right:10px; }
 
 
-#SliderPanel {padding:20px 30px 00px 20px; width:100%;}
+#SliderPanel { width:100%; }
+#RowSlider { padding:20px 20px 20px 20px;}
+#RowSlider.inactive { opacity:0.5;}
 
 #keyboard {
 }
