@@ -16,6 +16,7 @@
         data            : false,
         setup           : false,
         setup_source    : 'setup.json',
+        facebook_object_id : 0
 
     };
 
@@ -53,6 +54,7 @@
             
             mixPanel : false,
             sliderPanel : false,
+            navPanel : false,
             
             drawMixPanel : function(){
                 
@@ -87,6 +89,25 @@
                 }
                 
                 Gui.drawSlider();
+            },
+            
+            drawNavPanel : function(){
+                
+                console.log('draw nav panel');
+                if(Gui.navPanel==false) {
+                    var navpanelRow = $('<div/>',{
+                        id : 'NavPanel',
+                        class : 'row-fluid'
+                    });
+                    $('.navbar-left').append(navpanelRow);
+                    Gui.navPanel = true;
+                } else {
+                    $('#NavPanel').html('');
+                }
+                
+                Gui.drawFacebookButton();
+                
+                
             },
             
             drawScenes : function(){
@@ -210,14 +231,11 @@
                 $('#RangeSlider').on('slide',function(e){
                    connection.command.send(JSON.stringify({"change-range":{from:e.value[0],to:e.value[1]}}));
                    $(this).prop( { md:true} );
-                   //console.log(e.value);  
                 });            
                 
                 $('#RangeSlider').on('slideStop',function(){
                     $(this).prop( { md:false} );
-                });
-                
-                
+                });   
                 
                 $('#RangeSlider').prop( { md:false} );
                 
@@ -252,6 +270,19 @@
                     },10);
                 });
             },
+            
+            drawFacebookButton : function(){
+                var navPanel = $('#NavPanel'); 
+                var facebookButton = $('<button/>',{
+                       class    : 'btn',
+                       text     : "fb"
+                });
+                
+                facebookButton.on('click',GuiBehavior.facebookButton);
+                
+                navPanel.append(facebookButton);
+                $('#buttonSendFacebookObjectId').on('click',GuiBehavior.sendFacebookId);
+            }
             
               
         }; 
@@ -290,6 +321,17 @@
                 $(this).toggleClass('active');
                 $('#RowSlider').toggleClass('inactive');
                 console.log("toggle beat detection: "+options.current_scene);
+            },
+            
+            facebookButton : function(){
+                $('#facebook_object_id').val(options.facebook_object_id);
+                $('#ModalFacebook').modal('show');
+            },
+            
+            sendFacebookId : function(){
+                options.facebook_object_id = $('#facebook_object_id').val();
+                connection.command.send(JSON.stringify({"facebook-object-id":options.facebook_object_id}));
+                $('#ModalFacebook').modal('hide');
             }
         };
     
@@ -306,6 +348,9 @@
             
             $('#btnDisconnect').on('click',function(){
                 closeCommandServer();
+                $(target).html('');
+                Gui.mixPanel = false;
+                Gui.sliderPanel = false;
             });
             
             
@@ -339,6 +384,7 @@
                 console.log('Command Server Opened');
                 $('#btnConnect').hide();
                 $('#btnDisconnect').show();
+                Gui.drawNavPanel();
             };
             
             connection.command.onerror = function (error) {
@@ -389,7 +435,7 @@
                 console.log($('#RangeSlider').prop('md'));
                 if($('#RangeSlider').prop('md')==true)
                     return;
-                    
+                      
                 options.scenes = data.scenes;
                 options.current_scene = data.current_scene;
                 Gui.drawSliderPanel();
@@ -403,6 +449,7 @@
                $("button[data-name='"+options.current_scene+"']").toggleClass('active');
                //console.log('Current Scene: '+options.current_scene);
             }
+
         }
         
         /*

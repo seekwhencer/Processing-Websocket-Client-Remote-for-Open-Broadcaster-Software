@@ -18,9 +18,9 @@ public class CommandServer extends WebSocketServer {
     //this.sendToAll( "CommandServer | new connection: " + handshake.getResourceDescriptor() );
     System.out.println( "CommandServer: "+conn.getRemoteSocketAddress().getAddress().getHostAddress() + " connected!" );
     
-    //c.getSceneList();
-    this.sendCurrentScene();
-    this.sendScenes("after login");
+    c.getSceneList();
+    //this.sendCurrentScene();
+    //this.sendScenes("after login");
     
   }
 
@@ -81,6 +81,11 @@ public class CommandServer extends WebSocketServer {
       bp.toggleSceneDetection(m.getString("toggle-scene-detection"));
       this.sendScenes("when the scene beat detection toggled");
       
+    }
+    
+    if (m.hasKey("facebook-object-id")) {
+      bp.facebookObjectId = m.getString("facebook-object-id");
+      this.sendFacebookObjectId();
     }
     
   }
@@ -148,5 +153,12 @@ public class CommandServer extends WebSocketServer {
   */
   public void sendTick(String source){
     this.sendToAll("{\"source\":\""+source+"\"}"); // sending the Tick via CommandServer
+  }
+  
+  /*
+  *
+  */
+  public void sendFacebookObjectId(){
+    this.sendToAll("{\"facebook_object_id\":\""+bp.facebookObjectId+"\"}"); 
   }
 }

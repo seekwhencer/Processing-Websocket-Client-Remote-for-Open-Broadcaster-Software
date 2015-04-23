@@ -33,7 +33,7 @@ public class ObsScene {
         return this.sources.get(i);
       }
     }
-    return new ObsSource("empty",false);
+    return null; //new ObsSource("empty",false);
   }
   
   public int countBeatSources(){

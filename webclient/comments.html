@@ -1,0 +1,67 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <link href="favicon.ico" rel="shortcut icon" />
+        <title>Beatsocket Facebook Comments</title>
+        <meta name="robots" content="index,follow">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
+        <script type="text/javascript" src="./js/assets/jquery.min.js"></script>        
+        <script type="text/javascript" src="./js/assets/bootstrap.min.js"></script>
+        <script type="text/javascript" src="./js/assets/jquery.transit.min.js"></script>      
+        <script type="text/javascript" src="./js/jquery.beatcomments.js"></script>
+      
+        <link rel="stylesheet" type="text/css" href="./css/assets/fontawesome/font-awesome.min.css" title="style" />
+       
+
+        
+         
+        
+    </head>
+  
+    <body>
+        <style>
+            body {
+                margin: 0px;
+                padding: 0px;
+                font-size: 1em;
+            
+            }
+            
+            * {
+                font-family: 'arial', sans-serif;
+                color:#fff;
+                font-size:1em;
+            
+            }
+            
+            #beatcomments { overflow:hidden; display:block; }
+            
+            .message { overflow:hidden; display:block; position:absolute; bottom:0; width:100%; }
+            .message .text { overflow:hidden; display:inline-block; font-size:4em; letter-spacing:-0.1em; padding-left:10px; padding-right:10px; white-space: nowrap;}
+            .message .user { font-size:1em; bottom:0px; font-weight:800; background-color:#fff; color:#000; position:absolute; text-transform:uppercase; padding:3px 10px 2px 10px; line-height:1em; display:inline-block; }
+
+            
+        </style>
+        <script language="JavaScript">
+            var beatcomments;
+            
+            $(document).ready(function(){
+        
+                $('a, button').on('click',function(){
+                    var that = this;
+                    setTimeout( function(){
+                        that.blur();
+                    },10);
+                });
+                
+                beatcomments = $('#beatcomments').beatcomments({
+                    //object_id : '795058580548282',
+                    object_id : '10155488369555273'
+                });
+            });
+        </script> 
+        <div id="beatcomments">
+            
+        </div>
+    </body>
+</html>

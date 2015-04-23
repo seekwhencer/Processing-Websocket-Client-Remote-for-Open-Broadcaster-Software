@@ -21,19 +21,34 @@ h1, h2, h3, h4, h5 {
     float: right;
 }
 
+.mt { margin-top:20px; }
+.mb { margin-bottom:20px;}
+
 a:hover {
     text-decoration: none;
 }
 
+.modal { z-index:100000;}
 .modal .modal-dialog {
     width: 98%;
 }
 
+.modal .form-control {  background-color:rgba(0,0,0,0.1); color:#ddd; border-color:#666; display:block;}
+.modal input.form-control {font-size:4em; height:inherit; }
+.modal-body { font-size:1.2em;}
+.modal ul { margin:0; padding:0; }
+.modal ul li {margin:0 0 5px 20px; padding:0;}
 
-.navbar-header { letter-spacing:-0.08em; margin-top:8px;}
-.navbar-header h2 { text-transform:uppercase; font-weight:bold; letter-spacing:-0.1em;}
+.navbar-micro { background-color:rgba(0,0,0,0.5); display:block; color:#999; padding-left:10px;}
+.navbar-head { display:inline-block; letter-spacing:-0.08em; margin-top:8px;}
+.navbar-head h2 { text-transform:uppercase; font-weight:bold; letter-spacing:-0.1em;}
 .navbar-right { float:right; margin-top:4px; margin-right:0px;}
 .navbar-right .btn { margin-bottom:0;}
+.navbar-left {margin-top:4px; }
+.navbar-left .btn { margin-bottom:0; }
+
+.page-index { width:100%; position:relative; }
+.page-index button { font-size:5em; border-radius:10px; padding:5px 20px 5px 20px; margin:auto; width:auto;display:block;}
 
 #RowScenes { padding:20px; }
 #RowScenes button { margin-right:10px; }

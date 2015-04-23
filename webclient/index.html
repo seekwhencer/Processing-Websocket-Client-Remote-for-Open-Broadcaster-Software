@@ -28,19 +28,81 @@
         
     </head>
     <body>
+        <div class="modal fade" id="ModalFacebook" tabindex="-1" role="dialog" aria-labelledby="ModalFacebookLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">Facebook Object Comments</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 col-xs-12">
+                                <strong>How to use Facebook Comments from an Object (Post, Photo etc.)</strong><br /><br />
+                                <ul>
+                                    <li><a href="">Download the PHP-Sources</a>, place it on a Webserver who is accessible by facebook - and make it runable, set rights to write files</li>
+                                    <li>Go to Facebook, create an App and copy your Access Token (User Token from App)</li>
+                                    <li>Edit the "conf.php" of the PHP Sources: Access Token, App Secret, App Id</li>
+                                    <li>Call the "token.php" in your Browser to generate a long lived (60 Days) Access Token. The long lived Token where stored as "log/token".</li>
+                                    <li>The long lived Token Activation invokes automatically after token.php is complete. You can call it manually: "longtoken.php"</li>
+                                    <li>Now you can make api calls to facebook with the 60-days Token.</li>
+                                </ul>
+                                <br />
+                                <strong>How to add Comments Layer in Open Broadcaster Software?</strong><br /><br />
+                                <ul>
+                                    <li>Create a new global source with the Plugin CLR Browser Plugin</li>
+                                    <li>Use the "http://myhost/my/folder/comments.html" (from this folder here) as source.</li>
+                                    <li>Add a new Source by using the global Source</li>
+                                    <li>The comments.html calls now every 10th Second</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6 col-xs-12">
+                                Facebook Object Id
+                                <input class="form-control col-xs-12 mb tac" id="facebook_object_id">
+                                
+                                <ul class="">
+                                    <li>The Object Id is the Id of an Facebook Object. </li>
+                                    <li>You can get all Comments of any Objects where you can access with your Facebook Account: Privacy.</li>
+                                    <li>Enjoy!</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="button" class="btn btn-success" id="buttonSendFacebookObjectId">
+                                Use
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-micro">
+            <strong>beatsocket web client</strong> &middot; Matthias Kallenbach &middot; seekwhencer.de
+        </div>
         <nav class="navbar navbar-default">
           <div class="container-fluid">
+            
             <div class="navbar-right">
-                <button class="btn btn-success" id="btnConnect">connect</button>
+                
                 <button class="btn btn-danger" style="display:none;" id="btnDisconnect">disconnect</button>
             </div>
-            <div class="navbar-header">
-                <h2>beatsocket 0.1</h2>
+            <div class="navbar-left">
+                
             </div>
          </div>
        </nav>
         <div id="beatsocket">
             
+        </div>
+        <div class="page-index">
+            <button class="btn btn-success" id="btnConnect">connect</button>
         </div>
     </body>
 </html>
