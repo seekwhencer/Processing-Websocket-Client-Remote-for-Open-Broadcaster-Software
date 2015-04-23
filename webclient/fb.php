@@ -1,8 +1,17 @@
 <?php
 
-    $fbsdk_url = 'http://fb.seeekwhencer.de/';
-    
-    $fbsdk_url = 'http://localhost:8080/clients/fb.seekwhencer.de/';
+
+    // edit the place where the fb php files are accessible
+    // before you can fetch the comments:
+    // create a fb app and get your app user access token,
+    // edit the conf.php from the fb sources
+    // and generate a long lived token with:
+    //
+    // fp.php?access_token=your acces token
+    //
+    $fbsdk_url = 'http://yourhost.xxx/your/path/'; // to the comments.php
+
+
 
     function fetch($url,$data){
         $ch = curl_init();  
