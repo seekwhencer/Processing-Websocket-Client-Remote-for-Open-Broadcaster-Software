@@ -16,6 +16,7 @@
         data            : false,
         setup           : false,
         setup_source    : 'setup.json',
+        max_comments    : 12
 
     };
 
@@ -49,95 +50,47 @@
         
 
         // GUI
-        var Gui = {               
-            drawComments : function(){
-                // adds the comments
-                var exists;
-                var ml = $(target).find(".message").length;
-
-                for(var i=0; i<20; i++){
-                    if(comments[i]!=undefined){          
-                        exists = $(target).find("div[data-id='"+comments[i].id+"']");
-                        
-                        // adds one message to the html stack
-                        if(comments[i].message != '' && exists.length==0){
-                            var comment = $('<div/>',{
-                                'data-id'   : comments[i].id,
-                                'class'     : 'message',
-                                'style'     : 'opacity:0;'
-                            });
-                            
-                            comment.html('<div class="user">'+comments[i].from.name+'</div><div class="scroll"><div class="text">'+comments[i].message+'</div></div>');                           
-                            
-                            if(ml==0){
-                                $(target).append(comment);
-                            } else {
-                                $(target).prepend(comment);
-                            }
-                        }
+        var Gui = {
+            
+            drawComments : function(mi){
+              
+                if(mi==undefined){
+                    if(comments.length<options.max_comments){
+                        var mi = 0;
+                    } else {
+                        var mi = comments.length-options.max_comments-1;
                     }
                 }
+                    
+                // break the chain
+                if(comments[mi]==undefined)
+                    return;
 
-                // move it                
-                var margin_max = 70;
-                var messages = $(target).find(".message");
-                $.each(messages,function(i,message){
-                    
-                    var text    = $(message).find('.text');
-                    var size    = parseInt($(text).css('font-size').replace('px',''));
-                    
-                    var margin_to   = (margin_max)*i;
-                    var opacity_to  = 1-((1/19)*(i+1));
-                                        
-                    var mopt = {
-                        
-                    };
-                    
-                    var topt = {
-                        complete : function(){
-                            GuiBehavior.pingPongTicker(message);
-                        }
-                    };
-                    
-                    //
-                    if(i==0){
-                       $(message).css({'font-weight':800});
-                       
-                       mopt['opacity'] = 1;                       
-                       topt['fontSize'] = 128;
-                    }
-                    
-                    if(i>0){
-                        mopt['marginBottom'] = margin_to + margin_max;
-                        mopt['opacity']      = opacity_to;
-                       
-                        topt['fontSize']     = 64;
-                        topt['fontWeight']   = 200;
-                        
-                        if(size>64){
-                            console.log(i);
-                            var scroll = $(message).find('.scroll');
-                            $(scroll).transitStop();
-                            $(scroll).css({'margin-left':'0px'});
-                            $(message).prop({scrolling:false});
-                        }
-                        
-                    }
-                    
-                    $(message).transition(mopt);
-                    $(text).transition(topt);
-                });
+                   
+                var ml      = $(target).find(".message").length;
+                var exists  = $(target).find("div[data-id='"+comments[mi].id+"']");
                 
-                // remove the other over 20
-                
-                var messages = $(target).find('.messages');
-                for(var i=messages.length; i==messages.length-19; i--){
-                    $(messages[i]).remove();
+                if(exists.length==0){
+                    var comment = $('<div/>',{
+                        'data-id'   : comments[mi].id,
+                        'class'     : 'message',
+                        'style'     : 'opacity:0;'
+
+                    });
+                    
+                    comment.html('<div class="user">'+comments[mi].from.name+' '+comments[mi].created_time+'</div><div class="scroll"><div class="text">'+comments[mi].message+'</div></div>');                           
+                    $(target).prepend(comment);
+                    
+                    $(target).find('.message').eq(options.max_comments+1).remove();
+
+                    console.log('inserted: '+comments[mi].id+' from: '+comments[mi].from.name);
+                    GuiBehavior.animateMessage(mi);
+                } else {
+
+                    console.log('exists: '+comments[mi].id+' from: '+comments[mi].from.name);
+                    Gui.drawComments(mi+1);
                 }
-                
-                var messages = $(target).find('.messages');
-                console.log(messages.length);
-                
+
             }
         }; 
         
@@ -146,8 +99,69 @@
         // GUI Behavior
         var GuiBehavior = {
             
-            pingPongTicker : function(message){
+            
+            animateMessage : function(mi){
+                var messages        = $(target).find(".message");
+                var margin_message  = 70;
                 
+                $.each(messages,function(i,message){
+                    
+                    var text    = $(message).find('.text');
+                    var size    = parseInt($(text).css('font-size').replace('px',''));
+                    
+                    var margin_to   = margin_message*i;
+                    var opacity_to  = 1-((1/(options.max_comments))*(i+1));
+                    
+                    var mopt = {
+                        marginBottom    : margin_to,
+                        opacity         : 1,
+                        duration        : 500,
+                        complete        : function(){
+                            GuiBehavior.pingPongTicker(message);
+                                                        
+                            if(i==messages.length-1) // trigger at the last
+                                Gui.drawComments(mi+1);
+                        }
+                    };
+                    
+                    var topt = {
+                        fontSize : 128
+                    };
+
+                    if(i==0){
+                       $(message).css({'font-weight':800});                  
+                    }
+                    
+                    if(i>0){
+                        mopt['marginBottom'] = margin_to + margin_message;
+                        mopt['opacity']      = opacity_to;
+                       
+                        topt['fontSize']     = 64;
+                        topt['fontWeight']   = 200;
+                        
+                        if(size>64){
+                            var scroll = $(message).find('.scroll');
+                            $(scroll).transitStop();
+                            $(scroll).css({'margin-left':'0px'});
+                            $(message).prop({scrolling:false});
+                        }
+                        
+                    }
+                       
+                    
+                    $(message).transition(mopt);
+                    $(text).transition(topt);
+                    
+                });
+            },
+            
+            
+            
+            
+            /**
+             * 
+             */
+            pingPongTicker : function(message){
 
                 if($(message).prop('scrolling')==true)
                     return;
@@ -156,9 +170,6 @@
                 var scroll  = $(message).find('.scroll');
                 var text    = $(message).find('.text');
                 var size    = parseInt($(text).css('font-size').replace('px',''));
-                
-                
-                
                 
                 var boxWidth= $('body').width();
                 var width   = $(scroll).outerWidth();
@@ -173,7 +184,6 @@
                 
                 $(message).prop({scrolling:true});    
                 
-                
                 var sopt    = {
                     easing      : 'linear',
                     delay       : 0000,
@@ -183,8 +193,6 @@
                         GuiBehavior.pingPongTicker(message);
                     }
                 };
-                
-                
                                 
                 if(actual==0 || actual==-1) {
                     sopt.marginLeft = -diff;
@@ -200,7 +208,9 @@
                 //console.log('scroll: '+$(message).index()+' from: '+actual+' to: '+sopt.marginLeft);
                 $(scroll).transit(sopt);
                 
-            }           
+            }
+            
+                 
         };
     
         
@@ -216,10 +226,10 @@
                 connectToCommandServer();
             });
 
-            var timer = setInterval(getComments,15000);
+            var timer = setInterval(function(){
+                getComments();
+            },15000);
             getComments();
-          
-            
 
         }
 
@@ -289,7 +299,7 @@
                 dataType    : 'text',
                 success     : function(data) {
                     comments = $.parseJSON(data);
-                    
+                    console.log('getting comments complete');
                     Gui.drawComments();
                 }
             });

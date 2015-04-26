@@ -71,12 +71,18 @@
 
 
     $comments = $graphObject['data'];
-    $comments = array_reverse($comments);
+    
+    // clear empty comments
+    $cleared_comments = array();
+    foreach($comments as $c){
+        if($c->message!='')
+            $cleared_comments[]=$c;
+    } 
     
     $fh = fopen('log/comments.json','w+');
-    fwrite($fh,json_encode($comments));
+    fwrite($fh,json_encode($cleared_comments));
     fclose($fh);
    
     
 ?>
-<?= json_encode($comments,true); ?>
+<?= json_encode($cleared_comments,true); ?>
