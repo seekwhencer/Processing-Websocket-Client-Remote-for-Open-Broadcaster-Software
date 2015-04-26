@@ -52,16 +52,14 @@
         var Gui = {               
             drawComments : function(){
                 // adds the comments
-                console.log(comments.length);
-                var m = 0;
                 var exists;
-                
-                var ml          = $(target).find(".message").length;
+                var ml = $(target).find(".message").length;
 
-                
                 for(var i=0; i<20; i++){
                     if(comments[i]!=undefined){          
-                        exists = $(target).find("div[data-id='"+comments[i].id+"']");  
+                        exists = $(target).find("div[data-id='"+comments[i].id+"']");
+                        
+                        // adds one message to the html stack
                         if(comments[i].message != '' && exists.length==0){
                             var comment = $('<div/>',{
                                 'data-id'   : comments[i].id,
@@ -69,120 +67,140 @@
                                 'style'     : 'opacity:0;'
                             });
                             
-                            comment.html('<div class="user">'+comments[i].from.name+'</div><div class="text">'+comments[i].message+'</div>');                           
+                            comment.html('<div class="user">'+comments[i].from.name+'</div><div class="scroll"><div class="text">'+comments[i].message+'</div></div>');                           
                             
                             if(ml==0){
                                 $(target).append(comment);
                             } else {
                                 $(target).prepend(comment);
                             }
-                            
-                            var text = $(comment).find(".text");  
-                            GuiBehavior.pingpongTicker(text,'ping');
-                            
-                            m = m+1;
                         }
                     }
                 }
-                var margin_max = 70;
-                
-                var messages = $(target).find(".message");
-                
-                for(var i=0; i<messages.length; i++){
-                    var text = $(messages[i]).find(".text");
-                    var margin_to = (margin_max)*i;
-                    var opacity_to = 1-((1/19)*(i+1));
-                    var is_visible = $(messages[i]).css('opacity');
-                    var fontSize = $(text).css('font-size');
-                    
-                    var mopt = {
-                        marginBottom    : margin_to,
-                        opacity         : opacity_to
-                    };
-                    if(i==0){
-                        var topt = {
-                            fontWeight : 800,
-                            fontSize : '8em'  
-                        };
-                    }
-                    
-                    if(i>0) {
-                        var mopt = {
-                            marginBottom    : margin_to + margin_max,
-                            opacity         : opacity_to
-                        };
-                        console.log(fontSize);
-                        if(fontSize=='64px') {
-                            var topt = {
-                                fontWeight : 200,
-                                fontSize : '4em'  
-                            };
-                        }
-                    }
-                    if(i>1){
-                        var topt = {};
-                    }
-                    
-                    
-                    $(messages[i]).transition(mopt);
 
-                     
-                    $(text).transition(topt);  
+                // move it                
+                var margin_max = 70;
+                var messages = $(target).find(".message");
+                $.each(messages,function(i,message){
                     
-                       
+                    var text    = $(message).find('.text');
+                    var size    = parseInt($(text).css('font-size').replace('px',''));
                     
-                    
+                    var margin_to   = (margin_max)*i;
+                    var opacity_to  = 1-((1/19)*(i+1));
                                         
+                    var mopt = {
+                        
+                    };
+                    
+                    var topt = {
+                        complete : function(){
+                            GuiBehavior.pingPongTicker(message);
+                        }
+                    };
+                    
+                    //
+                    if(i==0){
+                       $(message).css({'font-weight':800});
+                       
+                       mopt['opacity'] = 1;                       
+                       topt['fontSize'] = 128;
+                    }
+                    
+                    if(i>0){
+                        mopt['marginBottom'] = margin_to + margin_max;
+                        mopt['opacity']      = opacity_to;
+                       
+                        topt['fontSize']     = 64;
+                        topt['fontWeight']   = 200;
+                        
+                        if(size>64){
+                            console.log(i);
+                            var scroll = $(message).find('.scroll');
+                            $(scroll).transitStop();
+                            $(scroll).css({'margin-left':'0px'});
+                            $(message).prop({scrolling:false});
+                        }
+                        
+                    }
+                    
+                    $(message).transition(mopt);
+                    $(text).transition(topt);
+                });
+                
+                // remove the other over 20
+                
+                var messages = $(target).find('.messages');
+                for(var i=messages.length; i==messages.length-19; i--){
+                    $(messages[i]).remove();
                 }
+                
+                var messages = $(target).find('.messages');
+                console.log(messages.length);
                 
             }
-            
         }; 
         
         
         
         // GUI Behavior
         var GuiBehavior = {
-        
-            pingpongTicker : function(text,use){
-                var boxWidth= $(target).width();
-                var width   = $(text).outerWidth();
-                var diff    = width - boxWidth;
+            
+            pingPongTicker : function(message){
                 
-                if(diff<=0)
-                    return;
 
-                console.log(width+' '+boxWidth+' '+diff);
+                if($(message).prop('scrolling')==true)
+                    return;
                 
-                switch(use){
-                    case 'pong':
-                    margin = 0;
-                    use = 'ping';
-                    delay = 3000;
-                    
-                    break;
-                    
-                    case 'ping':
-                    margin = -diff;
-                    use = 'pong';
-                    delay = 3000;
-                    break;
-                    
+                                
+                var scroll  = $(message).find('.scroll');
+                var text    = $(message).find('.text');
+                var size    = parseInt($(text).css('font-size').replace('px',''));
+                
+                
+                
+                
+                var boxWidth= $('body').width();
+                var width   = $(scroll).outerWidth();
+                
+                var diff    = width - boxWidth;
+                var actual  = parseInt($(scroll).css('margin-left').replace('px',''));
+                
+
+                if(diff<=0){
+                    return;
                 }
                 
-                duration = diff*20;
+                $(message).prop({scrolling:true});    
                 
-                $(text).transit({
-                    marginLeft:margin,
-                    duration:duration,
-                    easing:'linear',
-                    delay : delay,
-                    complete: function() { 
-                        GuiBehavior.pingpongTicker(text,use);
+                
+                var sopt    = {
+                    easing      : 'linear',
+                    delay       : 0000,
+                    duration    : diff*20,
+                    complete    : function(){
+                        $(message).prop({scrolling:false});
+                        GuiBehavior.pingPongTicker(message);
                     }
-                });
-            }
-            
+                };
+                
+                
+                                
+                if(actual==0 || actual==-1) {
+                    sopt.marginLeft = -diff;
+                }
+                if(actual<-1){
+                    sopt.marginLeft = 0;
+                }
+                
+                if($(message).index()>0 && size > 64){
+                    sopt.marginLeft = 0;
+                }
+                
+                //console.log('scroll: '+$(message).index()+' from: '+actual+' to: '+sopt.marginLeft);
+                $(scroll).transit(sopt);
+                
+            }           
         };
     
         
@@ -198,7 +216,7 @@
                 connectToCommandServer();
             });
 
-            var timer = setInterval(getComments,10000);
+            var timer = setInterval(getComments,15000);
             getComments();
           
             
